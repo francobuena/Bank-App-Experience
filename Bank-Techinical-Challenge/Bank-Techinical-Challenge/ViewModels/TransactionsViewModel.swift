@@ -12,17 +12,20 @@ class TransactionsViewModel: ObservableObject {
     private let service: Service
     @Published var accounts: AccountsList?
     @Published var transactions: TransactionList?
+    @Published var user: User?
     @Published var roundUp: Double?
     @Published var isLoading = false
+    @Published var isTransferring = false
+    @Published var showAlert = false
     
     init(service: Service) {
         self.service = service
     }
     
     func loadData() async {
-        
         isLoading = true
         do {
+            user = try await service.fetchUser()
             accounts = try await service.fetchAccounts()
             transactions = try await service.fetchTransactions(
                 accountId: "273a141f-3060-46bb-bca9-78d8c823f30f",
@@ -30,7 +33,7 @@ class TransactionsViewModel: ObservableObject {
             )
             let amount = transactions?.calculateRoundUp()
             roundUp = Double(amount ?? 0) / 100
-            await addMoneyToGoal(amount: amount ?? 0)
+//            await addMoneyToGoal(amount: amount ?? 0)
             isLoading = false
         } catch {
             // TODO: Improve error handling
@@ -39,15 +42,15 @@ class TransactionsViewModel: ObservableObject {
     }
     
     func addMoneyToGoal(amount: Int) async {
-        isLoading = true
+        let minorUnits = amount * 100
+        print(minorUnits)
+        isTransferring = true
         let request = TopUpRequest(
-            amount: Amount(currency: "GBP", minorUnits: amount)
+            amount: Amount(currency: "GBP", minorUnits: minorUnits)
         )
-        print("REQUEST", request)
         let transferUid = UUID().uuidString.lowercased()
-        print("UUID", transferUid)
         defer {
-            isLoading = false
+            isTransferring = false
         }
         
         do {
@@ -55,7 +58,7 @@ class TransactionsViewModel: ObservableObject {
             let body = try encoder.encode(request)
             try await service.addMoneyToGoal(
                 accountId: "273a141f-3060-46bb-bca9-78d8c823f30f",
-                savingsGoalId: "27a5fad2-52a8-4ff5-b81c-9359c73b7a5e",
+                savingsGoalId: "2b8239b4-371b-4761-a5de-48668826dba1",
                 transferId: transferUid,
                 body: body)
         } catch {

@@ -16,29 +16,68 @@ struct ContentView: View {
             if viewModel.isLoading {
                 ProgressView("Fetching accounts...")
             } else {
-                Image(systemName: "dollarsign.bank.building")
-                    .imageScale(.large)
-                    .foregroundStyle(.tint)
-                Text("This is a bank")
+                nameCard
                 
-                if let accounts = viewModel.accounts?.accounts {
-                    VStack(alignment: .leading) {
-                        Text(accounts[0].name)
-                            .font(.headline)
-                    }
-                }
+//                if let accounts = viewModel.accounts?.accounts {
+//                    VStack(alignment: .leading) {
+//                        Text(accounts[0].name)
+//                            .font(.headline)
+//                    }
+//                }
                 
-                if let roundUp = viewModel.roundUp {
-                    VStack(alignment: .leading) {
-                        Text("Round Up: " + String(format: "%.2f", roundUp))
-                            .font(.headline)
-                    }
-                }
+                roundUpSection
+                Spacer()
             }
         }
-        .padding()
+        .padding(24)
         .task {
             await viewModel.loadData()
         }
     }
+    
+    private var nameCard: some View {
+        HStack {
+            Text("Hello, \(viewModel.user?.firstName ?? "")")
+                .font(.title)
+                .fontWeight(.bold)
+            Spacer()
+        }
+    }
+    
+    private var roundUpSection: some View {
+        HStack {
+            if let roundUp = viewModel.roundUp {
+                VStack(alignment: .leading) {
+                    Text("Your round up amount is £" + String(format: "%.2f", roundUp))
+                        .font(.headline)
+                    
+                    Button {
+                        Task {
+                            await viewModel.addMoneyToGoal(amount: Int(roundUp))
+                        }
+                    } label: {
+                        if viewModel.isTransferring {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                        } else {
+                            Text("Transfer to savings")
+                                .font(.body)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
+                    }
+                }
+            }
+            Spacer()
+        }
+        .padding(.top, 4)
+    }
+    
+}
+
+
+#Preview {
+    ContentView()
 }

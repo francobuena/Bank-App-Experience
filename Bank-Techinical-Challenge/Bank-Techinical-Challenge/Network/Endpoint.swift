@@ -13,6 +13,7 @@ enum Endpoint {
         static let basePath = "api/v2/"
     }
     
+    case user
     case accounts
     case transactions(accountId: String, categoryId: String)
     case savingsGoals(accountId: String, method: String, request: Data?)
@@ -20,6 +21,8 @@ enum Endpoint {
     
     private func path() -> String {
         switch self {
+        case .user:
+            return "account-holder/individual"
         case .accounts:
             return "accounts"
         case .transactions(let accountId, let categoryId):
@@ -34,7 +37,7 @@ enum Endpoint {
     
     private var httpMethod: String {
         switch self {
-        case .accounts, .transactions:
+        case .user, .accounts, .transactions:
             return "GET"
         case .savingsGoals(_, let method, _):
             return method
