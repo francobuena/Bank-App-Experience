@@ -28,3 +28,7 @@ struct SavingsGoalRequest: Codable {
     let currency: String
     let target: Amount
 }
+
+struct TopUpRequest: Codable {
+    let amount: Amount
+}

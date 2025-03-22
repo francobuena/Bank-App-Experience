@@ -33,11 +33,11 @@ extension TransactionList {
     func calculateRoundUp() -> Int {
         var roundUp = 0
         
-        // Filter outbound and settled transactions
-        let outboundTransactions = feedItems
+        // Ensure we only get transactions that are outbound and settled
+        let transactions = feedItems
             .filter { $0.direction == "OUT" && $0.status == "SETTLED" }
         
-        for item in outboundTransactions {
+        for item in transactions {
             let minorUnits = item.amount.minorUnits
             let remainder = minorUnits % 100
             if remainder > 0 {

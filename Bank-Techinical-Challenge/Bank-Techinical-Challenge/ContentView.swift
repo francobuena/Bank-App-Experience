@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @StateObject private var viewModel = AccountsViewModel(service: NetworkManager())
+    @StateObject private var viewModel = TransactionsViewModel(service: NetworkManager())
     
     var body: some View {
         VStack {
