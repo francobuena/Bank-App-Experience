@@ -19,6 +19,7 @@ protocol Service {
     func fetchTransactions(accountId: String, categoryId: String) async throws -> TransactionList
     func fetchGoals(accountId: String) async throws -> SavingsGoalList
     func createGoal(accountId: String, body: Data) async throws
+    func addMoneyToGoal(accountId: String, savingsGoalId: String, transferId: String, body: Data) async throws
 }
 
 struct Config: Decodable {
@@ -103,5 +104,16 @@ class NetworkManager: Service {
     
     func createGoal(accountId: String, body: Data) async throws {
         try await sendRequest(.savingsGoals(accountId: accountId, method: "PUT", request: body))
+    }
+    
+    func addMoneyToGoal(accountId: String, savingsGoalId: String, transferId: String, body: Data) async throws {
+        try await sendRequest(
+            .addMoneyToGoal(
+                accountId: accountId,
+                savingsGoalId: savingsGoalId,
+                transferId: transferId,
+                method: "PUT",
+                request: body
+            ))
     }
 }

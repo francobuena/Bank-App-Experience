@@ -16,6 +16,7 @@ enum Endpoint {
     case accounts
     case transactions(accountId: String, categoryId: String)
     case savingsGoals(accountId: String, method: String, request: Data?)
+    case addMoneyToGoal(accountId: String, savingsGoalId: String, transferId: String, method: String, request: Data?)
     
     private func path() -> String {
         switch self {
@@ -26,6 +27,8 @@ enum Endpoint {
             return "feed/account/\(accountId)/category/\(categoryId)?changesSince=2025-03-21T00:00:00.000Z"
         case .savingsGoals(let accountId, _, _):
             return "account/\(accountId)/savings-goals"
+        case .addMoneyToGoal(let accountId, let savingsGoalId, let transferId, _, _):
+            return "account/\(accountId)/savings-goals/\(savingsGoalId)/add-money/\(transferId)"
         }
     }
     
@@ -34,6 +37,8 @@ enum Endpoint {
         case .accounts, .transactions:
             return "GET"
         case .savingsGoals(_, let method, _):
+            return method
+        case .addMoneyToGoal(_, _, _, let method, _):
             return method
         }
     }
@@ -48,6 +53,11 @@ enum Endpoint {
         
         switch self {
         case .savingsGoals(_, _, let body):
+            if let body {
+                request.httpBody = body
+                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            }
+        case .addMoneyToGoal(_, _, _, _, let body):
             if let body {
                 request.httpBody = body
                 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
