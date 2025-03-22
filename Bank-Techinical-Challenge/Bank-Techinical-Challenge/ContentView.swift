@@ -27,6 +27,13 @@ struct ContentView: View {
                             .font(.headline)
                     }
                 }
+                
+                if let roundUp = viewModel.roundUp {
+                    VStack(alignment: .leading) {
+                        Text("Round Up: " + String(format: "%.2f", roundUp))
+                            .font(.headline)
+                    }
+                }
             }
         }
         .padding()
