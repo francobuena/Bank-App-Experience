@@ -27,3 +27,24 @@ struct Amount: Codable {
     let currency: String
     let minorUnits: Int // TODO: Create mapper to update this value to the pence amount
 }
+
+extension TransactionList {
+    
+    func calculateRoundUp() -> Int {
+        var roundUp = 0
+        
+        // Filter outbound and settled transactions
+        let outboundTransactions = feedItems
+            .filter { $0.direction == "OUT" && $0.status == "SETTLED" }
+        
+        for item in outboundTransactions {
+            let minorUnits = item.amount.minorUnits
+            let remainder = minorUnits % 100
+            if remainder > 0 {
+                roundUp += (100 - remainder)
+            }
+        }
+        
+        return roundUp
+    }
+}
