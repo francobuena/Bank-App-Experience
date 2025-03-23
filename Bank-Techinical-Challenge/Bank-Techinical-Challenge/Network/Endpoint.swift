@@ -15,7 +15,7 @@ enum Endpoint {
     
     case user
     case accounts
-    case transactions(accountId: String, categoryId: String)
+    case transactions(accountId: String, categoryId: String, lastWeekDate: String)
     case savingsGoals(accountId: String, method: String, request: Data?)
     case addMoneyToGoal(accountId: String, savingsGoalId: String, transferId: String, method: String, request: Data?)
     
@@ -25,9 +25,9 @@ enum Endpoint {
             return "account-holder/individual"
         case .accounts:
             return "accounts"
-        case .transactions(let accountId, let categoryId):
+        case .transactions(let accountId, let categoryId, let lastWeekDate):
             // TODO: we need to move this changesSince parameter somewhere
-            return "feed/account/\(accountId)/category/\(categoryId)?changesSince=2025-03-21T00:00:00.000Z"
+            return "feed/account/\(accountId)/category/\(categoryId)?changesSince=\(lastWeekDate)"
         case .savingsGoals(let accountId, _, _):
             return "account/\(accountId)/savings-goals"
         case .addMoneyToGoal(let accountId, let savingsGoalId, let transferId, _, _):

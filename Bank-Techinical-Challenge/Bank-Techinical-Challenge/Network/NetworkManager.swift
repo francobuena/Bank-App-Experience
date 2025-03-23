@@ -17,7 +17,7 @@ enum NetworkError: Error {
 protocol Service {
     func fetchUser() async throws -> User
     func fetchAccounts() async throws -> AccountsList
-    func fetchTransactions(accountId: String, categoryId: String) async throws -> TransactionList
+    func fetchTransactions(accountId: String, categoryId: String, pastWeekDate: String) async throws -> TransactionList
     func fetchGoals(accountId: String) async throws -> SavingsGoalList
     func createGoal(accountId: String, body: Data) async throws
     func addMoneyToGoal(accountId: String, savingsGoalId: String, transferId: String, body: Data) async throws
@@ -99,8 +99,8 @@ class NetworkManager: Service {
         try await performRequest(.accounts)
     }
     
-    func fetchTransactions(accountId: String, categoryId: String) async throws -> TransactionList {
-        try await performRequest(.transactions(accountId: accountId, categoryId: categoryId))
+    func fetchTransactions(accountId: String, categoryId: String, pastWeekDate: String) async throws -> TransactionList {
+        try await performRequest(.transactions(accountId: accountId, categoryId: categoryId, lastWeekDate: pastWeekDate))
     }
     
     func fetchGoals(accountId: String) async throws -> SavingsGoalList {

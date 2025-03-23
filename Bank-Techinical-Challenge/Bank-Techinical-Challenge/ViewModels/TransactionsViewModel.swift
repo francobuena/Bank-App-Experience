@@ -25,16 +25,19 @@ class TransactionsViewModel: ObservableObject {
     
     func loadData() async {
         isLoading = true
+        let currentDate = Date()
+        let pastWeekDate = currentDate.formattedStringFromPast(days: 7)
+        print(pastWeekDate)
         do {
             user = try await service.fetchUser()
             transactions = try await service.fetchTransactions(
                 accountId: "273a141f-3060-46bb-bca9-78d8c823f30f",
-                categoryId: "273a30f2-165e-4e8e-976f-9cc138dd1f5f"
+                categoryId: "273a30f2-165e-4e8e-976f-9cc138dd1f5f",
+                pastWeekDate: pastWeekDate
             )
             roundUp = transactions?.calculateRoundUp()
             isLoading = false
         } catch {
-            // TODO: Improve error handling
             print("ERROR: \(error)")
         }
     }
