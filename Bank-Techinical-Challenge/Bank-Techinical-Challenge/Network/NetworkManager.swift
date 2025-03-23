@@ -15,6 +15,7 @@ enum NetworkError: Error {
 }
 
 protocol Service {
+    func fetchUser() async throws -> User
     func fetchAccounts() async throws -> AccountsList
     func fetchTransactions(accountId: String, categoryId: String) async throws -> TransactionList
     func fetchGoals(accountId: String) async throws -> SavingsGoalList
@@ -88,6 +89,10 @@ class NetworkManager: Service {
                 throw NetworkError.serverError("Server returned status code: \(httpResponse.statusCode)")
             }
         }
+    }
+    
+    func fetchUser() async throws -> User {
+        try await performRequest(.user)
     }
     
     func fetchAccounts() async throws -> AccountsList {
