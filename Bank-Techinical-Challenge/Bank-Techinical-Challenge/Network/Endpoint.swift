@@ -26,7 +26,6 @@ enum Endpoint {
         case .accounts:
             return "accounts"
         case .transactions(let accountId, let categoryId, let lastWeekDate):
-            // TODO: we need to move this changesSince parameter somewhere
             return "feed/account/\(accountId)/category/\(categoryId)?changesSince=\(lastWeekDate)"
         case .savingsGoals(let accountId, _, _):
             return "account/\(accountId)/savings-goals"
