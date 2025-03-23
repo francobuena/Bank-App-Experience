@@ -9,23 +9,26 @@ struct TransactionList: Codable {
     let feedItems: [Transaction]
 }
 
-struct Transaction: Codable {
+struct Transaction: Codable, Identifiable {
     let feedItemId: String
     let categoryId: String
     let amount: Amount
     let direction: String
     let status: String
+    let counterPartyName: String
     
     enum CodingKeys: String, CodingKey {
-        case amount, direction, status
+        case amount, direction, status, counterPartyName
         case feedItemId = "feedItemUid"
         case categoryId = "categoryUid"
     }
+    
+    var id: String { feedItemId }
 }
 
 struct Amount: Codable {
     let currency: String
-    let minorUnits: Int // TODO: Create mapper to update this value to the pence amount
+    let minorUnits: Int
 }
 
 extension TransactionList {

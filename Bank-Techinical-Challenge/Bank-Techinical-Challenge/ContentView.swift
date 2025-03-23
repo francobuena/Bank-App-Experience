@@ -14,24 +14,26 @@ struct ContentView: View {
     var body: some View {
         VStack {
             if viewModel.isLoading {
-                ProgressView("Fetching accounts...")
+                ProgressView("Fetching transactions...")
             } else {
                 nameCard
-                
-//                if let accounts = viewModel.accounts?.accounts {
-//                    VStack(alignment: .leading) {
-//                        Text(accounts[0].name)
-//                            .font(.headline)
-//                    }
-//                }
-                
                 roundUpSection
-                Spacer()
+                Divider()
+                transactionList
             }
         }
         .padding(24)
         .task {
             await viewModel.loadData()
+        }
+        .alert(viewModel.alertTitle, isPresented: $viewModel.showAlert) {
+            Button("Okay", role: .cancel) {
+                Task {
+                    await viewModel.loadData()
+                }
+            }
+        } message: {
+            Text(viewModel.alertMessage)
         }
     }
     
@@ -48,12 +50,12 @@ struct ContentView: View {
         HStack {
             if let roundUp = viewModel.roundUp {
                 VStack(alignment: .leading) {
-                    Text("Your round up amount is £" + String(format: "%.2f", roundUp))
+                    Text("Your round up amount is £" + roundUp.convertToString())
                         .font(.headline)
                     
                     Button {
                         Task {
-                            await viewModel.addMoneyToGoal(amount: Int(roundUp))
+                            await viewModel.addMoneyToGoal(amount: roundUp)
                         }
                     } label: {
                         if viewModel.isTransferring {
@@ -75,6 +77,33 @@ struct ContentView: View {
         .padding(.top, 4)
     }
     
+    private var transactionList: some View {
+        ScrollView {
+            VStack {
+                if let transactionList = viewModel.transactions {
+                    ForEach(transactionList.feedItems) { item in
+                        VStack {
+                            HStack {
+                                Text("\(item.counterPartyName)")
+                                    .font(.body)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(Color.white)
+                                Spacer()
+                                Text("£\(item.amount.minorUnits.convertToString())")
+                                    .foregroundColor(item.direction == "IN" ? Color.green : Color.white)
+                            }
+                            .padding(12)
+                            .cornerRadius(10)
+                            Divider()
+                        }
+                    }
+                }
+            }
+            .padding(.top, 12)
+            .background(Color.gray)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
 }
 
 
