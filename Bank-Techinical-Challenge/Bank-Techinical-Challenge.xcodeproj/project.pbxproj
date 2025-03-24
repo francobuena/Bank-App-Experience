@@ -29,9 +29,24 @@
 		A7A0F76B2D8D8B3B002D4A78 /* Bank-Techinical-ChallengeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bank-Techinical-ChallengeUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A7CF7F872D921C1E00B318EC /* Exceptions for "Bank-Techinical-Challenge" folder in "Bank-Techinical-ChallengeTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Helper/Date+FormattedStringFromPast.swift",
+				"Helper/Int+ConvertToString.swift",
+				Models/TransactionFeed.swift,
+			);
+			target = A7A0F7602D8D8B3B002D4A78 /* Bank-Techinical-ChallengeTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A7A0F7532D8D8B3A002D4A78 /* Bank-Techinical-Challenge */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A7CF7F872D921C1E00B318EC /* Exceptions for "Bank-Techinical-Challenge" folder in "Bank-Techinical-ChallengeTests" target */,
+			);
 			path = "Bank-Techinical-Challenge";
 			sourceTree = "<group>";
 		};
