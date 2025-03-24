@@ -10,35 +10,38 @@ import Foundation
 @MainActor
 class TransactionsViewModel: ObservableObject {
     private let service: Service
+    @Published var accountsList: AccountsList?
     @Published var transactions: TransactionList?
+    @Published var savingGoals: SavingsGoalList?
     @Published var user: User?
     @Published var roundUp: Int?
-    @Published var isLoading = false
     @Published var isTransferring = false
     @Published var showAlert = false
     @Published var alertTitle = ""
     @Published var alertMessage = ""
+    @Published var screenState: ScreenState = .loading
+    @Published var errorMessage = ""
     
     init(service: Service) {
         self.service = service
     }
     
-    func loadData() async {
-        isLoading = true
-        let currentDate = Date()
-        let pastWeekDate = currentDate.formattedStringFromPast(days: 7)
-        print(pastWeekDate)
+    func loadTransactions() async {
+        screenState = .loading
+        let pastWeekDate = Date().formattedStringFromPast(days: 7)
         do {
             user = try await service.fetchUser()
+            accountsList = try await service.fetchAccounts()
             transactions = try await service.fetchTransactions(
-                accountId: "273a141f-3060-46bb-bca9-78d8c823f30f",
-                categoryId: "273a30f2-165e-4e8e-976f-9cc138dd1f5f",
+                accountId: accountsList?.accounts[0].accountId ?? "",
+                categoryId: accountsList?.accounts[0].defaultCategory ?? "",
                 pastWeekDate: pastWeekDate
             )
             roundUp = transactions?.calculateRoundUp()
-            isLoading = false
+            screenState = .success
         } catch {
-            print("ERROR: \(error)")
+            screenState = .error
+            errorMessage = "\(error.localizedDescription)"
         }
     }
     
@@ -58,8 +61,8 @@ class TransactionsViewModel: ObservableObject {
             let encoder = JSONEncoder()
             let body = try encoder.encode(request)
             try await service.addMoneyToGoal(
-                accountId: "273a141f-3060-46bb-bca9-78d8c823f30f",
-                savingsGoalId: "2b8239b4-371b-4761-a5de-48668826dba1",
+                accountId: accountsList?.accounts[0].accountId ?? "",
+                savingsGoalId: "2b86d6e9-b062-4fb3-b838-6df55820d5a4",
                 transferId: transferUid,
                 body: body)
             alertTitle = "Success!"

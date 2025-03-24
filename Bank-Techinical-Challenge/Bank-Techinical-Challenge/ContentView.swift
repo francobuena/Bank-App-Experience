@@ -13,24 +13,33 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            if viewModel.isLoading {
+            switch viewModel.screenState {
+            case .loading:
                 ProgressView("Fetching transactions...")
-            } else {
-                userSection
-                transactionSection
+            case .error:
+                errorScreen
+            case .success:
+                homeScreen
             }
         }
         .task {
-            await viewModel.loadData()
+            await viewModel.loadTransactions()
         }
         .alert(viewModel.alertTitle, isPresented: $viewModel.showAlert) {
             Button("Okay", role: .cancel) {
                 Task {
-                    await viewModel.loadData()
+                    await viewModel.loadTransactions()
                 }
             }
         } message: {
             Text(viewModel.alertMessage)
+        }
+    }
+    
+    private var homeScreen: some View {
+        VStack {
+            userSection
+            transactionSection
         }
     }
     
@@ -118,8 +127,33 @@ struct ContentView: View {
         }
         .padding(24)
     }
+    
+    private var errorScreen: some View {
+        VStack(alignment: .leading) {
+            Spacer()
+            Text("Something went wrong")
+                .font(.largeTitle)
+            Text("\(viewModel.errorMessage)")
+                .padding(.top, 4)
+            Spacer()
+            Button {
+                Task {
+                    await viewModel.loadTransactions()
+                }
+            } label: {
+                Text("Try again")
+                    .font(.body)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+            }
+            .padding(.bottom, 12)
+        }
+        .padding(24)
+    }
 }
-
 
 #Preview {
     ContentView()

@@ -6,7 +6,6 @@
 //
 
 extension Int {
-    
     // Calculate the int to represent amount to cents and display as a string
     func convertToString() -> String {
         let amount = Double(self) / 100
