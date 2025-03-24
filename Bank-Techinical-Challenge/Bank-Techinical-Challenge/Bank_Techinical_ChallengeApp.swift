@@ -11,7 +11,7 @@ import SwiftUI
 struct Bank_Techinical_ChallengeApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TransactionsView()
         }
     }
 }
