@@ -15,7 +15,7 @@ struct SavingsGoal: Codable {
     let target: Amount
     let totalSaved: Amount
     let savedPercentage: Int
-    let state: String // TODO: change to enum type
+    let state: String
     
     enum CodingKeys: String, CodingKey {
         case name, target, totalSaved, savedPercentage, state
