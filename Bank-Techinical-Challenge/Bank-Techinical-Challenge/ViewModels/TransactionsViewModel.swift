@@ -21,6 +21,8 @@ class TransactionsViewModel: ObservableObject {
     @Published var alertMessage = ""
     @Published var screenState: ScreenState = .loading
     @Published var errorMessage = ""
+    @Published var hasSavings = false
+    @Published var showCreateGoalScreen = false
     
     init(service: Service) {
         self.service = service
@@ -32,6 +34,7 @@ class TransactionsViewModel: ObservableObject {
         do {
             user = try await service.fetchUser()
             accountsList = try await service.fetchAccounts()
+            savingGoals = try await service.fetchGoals(accountId: accountsList?.accounts[0].accountId ?? "")
             transactions = try await service.fetchTransactions(
                 accountId: accountsList?.accounts[0].accountId ?? "",
                 categoryId: accountsList?.accounts[0].defaultCategory ?? "",
@@ -39,6 +42,9 @@ class TransactionsViewModel: ObservableObject {
             )
             roundUp = transactions?.calculateRoundUp()
             screenState = .success
+            if let savingGoals {
+                hasSavings = savingGoals.savingsGoalList.count > 0 ? true : false
+            }
         } catch {
             screenState = .error
             errorMessage = "\(error.localizedDescription)"
@@ -62,7 +68,7 @@ class TransactionsViewModel: ObservableObject {
             let body = try encoder.encode(request)
             try await service.addMoneyToGoal(
                 accountId: accountsList?.accounts[0].accountId ?? "",
-                savingsGoalId: "2b86d6e9-b062-4fb3-b838-6df55820d5a4",
+                savingsGoalId: savingGoals?.savingsGoalList[0].savingsGoalId ?? "",
                 transferId: transferUid,
                 body: body)
             alertTitle = "Success!"
@@ -71,6 +77,10 @@ class TransactionsViewModel: ObservableObject {
             alertTitle = "Error"
             alertMessage = "Something went wrong: \(error.localizedDescription)"
         }
+    }
+    
+    func createSavingsGoalPressed() {
+        showCreateGoalScreen = true
     }
 
 }

@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  TransactionsView.swift
 //  Bank-Techinical-Challenge
 //
 //  Created by Buena, Franco on 21/3/2025.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct TransactionsView: View {
     
     @StateObject private var viewModel = TransactionsViewModel(service: NetworkManager())
     
@@ -22,17 +22,30 @@ struct ContentView: View {
                 homeScreen
             }
         }
-        .task {
-            await viewModel.loadTransactions()
+        .onAppear {
+            Task {
+                await viewModel.loadTransactions()
+            }
         }
         .alert(viewModel.alertTitle, isPresented: $viewModel.showAlert) {
             Button("Okay", role: .cancel) {
-                Task {
-                    await viewModel.loadTransactions()
+                // TODO: Handle this better in the future
+                // Ideally would need to reload when transfer to savings has been successful
+                if viewModel.alertTitle == "Success!" {
+                    Task {
+                        await viewModel.loadTransactions()
+                    }
                 }
             }
         } message: {
             Text(viewModel.alertMessage)
+        }
+        .fullScreenCover(isPresented: $viewModel.showCreateGoalScreen, onDismiss: {
+            Task {
+                await viewModel.loadTransactions()
+            }
+        }) {
+            CreateSavingsGoalView(viewModel: CreateSavingGoalViewModel(service: NetworkManager(), accountId: viewModel.accountsList?.accounts[0].accountId ?? ""))
         }
     }
     
@@ -62,8 +75,7 @@ struct ContentView: View {
     private var nameCard: some View {
         HStack {
             Text("Hello, \(viewModel.user?.firstName ?? "")")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+                .font(.system(size: 40, weight: .bold))
                 .foregroundColor(Color.white)
             Spacer()
         }
@@ -77,28 +89,54 @@ struct ContentView: View {
                         .font(.headline)
                         .foregroundColor(Color.white)
                     
-                    Button {
-                        Task {
-                            await viewModel.addMoneyToGoal(amount: roundUp)
-                        }
-                    } label: {
-                        if viewModel.isTransferring {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                        } else {
-                            Text("Transfer to savings")
-                                .font(.body)
-                                .padding()
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
+                    if viewModel.hasSavings {
+                        roundUpButton(roundUp: roundUp)
+                    } else {
+                        Text("You need to create a savings goal to transfer your round up amount for this week")
+                            .foregroundColor(Color.white)
+                            .font(.system(size: 12, weight: .light))
+                            .italic()
+                            .padding(.top, 4)
+                        createSavingsButton
                     }
                 }
             }
             Spacer()
         }
         .padding(.top, 2)
+    }
+    
+    private var createSavingsButton: some View {
+        Button {
+            viewModel.createSavingsGoalPressed()
+        } label: {
+            Text("Create a Savings Goal")
+                .font(.body)
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+        }
+    }
+    
+    private func roundUpButton(roundUp: Int) -> some View {
+        Button {
+            Task {
+                await viewModel.addMoneyToGoal(amount: roundUp)
+            }
+        } label: {
+            if viewModel.isTransferring {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+            } else {
+                Text("Transfer to savings")
+                    .font(.body)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+            }
+        }
     }
     
     private var transactionList: some View {
@@ -156,5 +194,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    TransactionsView()
 }
