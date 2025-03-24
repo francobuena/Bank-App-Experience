@@ -53,7 +53,7 @@ struct ContentView: View {
     private var nameCard: some View {
         HStack {
             Text("Hello, \(viewModel.user?.firstName ?? "")")
-                .font(.title)
+                .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(Color.white)
             Spacer()
